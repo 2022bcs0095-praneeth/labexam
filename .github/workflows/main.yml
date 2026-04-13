@@ -13,7 +13,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
       - run: pip install -r requirements.txt
 
@@ -34,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4   # ✅ VERY IMPORTANT
+
       - run: sudo apt-get update && sudo apt-get install jq bc -y
 
       - uses: actions/download-artifact@v4
@@ -58,7 +60,7 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - if: steps.compare.outputs.improved == 'true'
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest -f Dockerfile .
 
       - if: steps.compare.outputs.improved == 'true'
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest
