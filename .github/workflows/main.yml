@@ -2,7 +2,7 @@ name: ML Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   train:
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4   # ✅ VERY IMPORTANT
+      - uses: actions/checkout@v4 # ✅ VERY IMPORTANT
 
       - run: sudo apt-get update && sudo apt-get install jq bc -y
 
@@ -52,10 +52,10 @@ jobs:
           else
             echo "improved=false" >> $GITHUB_OUTPUT
           fi
-- if: steps.compare.outputs.improved == 'false'
-  run: |
-    echo "Skipped - P Sai Praneeth Kumar - 2022BCS0095"
-    exit 0
+      - if: steps.compare.outputs.improved == 'false'
+        run: |
+          echo "Skipped - P Sai Praneeth Kumar - 2022BCS0095"
+          exit 0
 
       - if: steps.compare.outputs.improved == 'true'
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
