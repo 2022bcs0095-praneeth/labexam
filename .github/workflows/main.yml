@@ -61,7 +61,7 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - if: steps.compare.outputs.improved == 'true'
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest -f Dockerfile .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/praneeth_2022bcs0095:latest -f Dockerfile .
 
       - if: steps.compare.outputs.improved == 'true'
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/praneeth_2022bcs0095:latest
