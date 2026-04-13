@@ -52,9 +52,10 @@ jobs:
           else
             echo "improved=false" >> $GITHUB_OUTPUT
           fi
-
-      - if: steps.compare.outputs.improved == 'false'
-        run: echo "Skipped - P Sai Praneeth Kumar - 2022BCS0095"
+- if: steps.compare.outputs.improved == 'false'
+  run: |
+    echo "Skipped - P Sai Praneeth Kumar - 2022BCS0095"
+    exit 0
 
       - if: steps.compare.outputs.improved == 'true'
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
