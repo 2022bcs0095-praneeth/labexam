@@ -1,0 +1,64 @@
+name: ML Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - run: pip install -r requirements.txt
+
+      - run: python train.py
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: model
+          path: model.pkl
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: metrics
+          path: metrics.json
+
+  deploy:
+    needs: train
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: sudo apt-get update && sudo apt-get install jq bc -y
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: metrics
+
+      - id: compare
+        run: |
+          NEW_MSE=$(cat metrics.json | jq .mse)
+          BEST_MSE=${{ vars.BEST_MSE }}
+
+          if (( $(echo "$NEW_MSE < $BEST_MSE" | bc -l) )); then
+            echo "improved=true" >> $GITHUB_OUTPUT
+          else
+            echo "improved=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: steps.compare.outputs.improved == 'false'
+        run: echo "Skipped - P Sai Praneeth Kumar - 2022BCS0095"
+
+      - if: steps.compare.outputs.improved == 'true'
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - if: steps.compare.outputs.improved == 'true'
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest .
+
+      - if: steps.compare.outputs.improved == 'true'
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/mlops:latest
